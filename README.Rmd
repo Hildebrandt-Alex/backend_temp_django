@@ -1,0 +1,23 @@
+---
+title: "Django Backend Template"
+output: github_document
+---
+
+# backend_template
+
+Ein leichtgewichtiges Django-Backend-Template mit REST-API-Struktur, vorbereitet für Deployment auf Servern (z. B. Ubuntu).
+
+## Features
+
+- Django (aktuelle Version)
+- Virtual Environment (`venv`)
+- Klar strukturierter Startpunkt für REST-Projekte
+
+## Nutzung
+
+```bash
+# Umgebung aktivieren
+source venv/Scripts/activate
+
+# Server starten
+python manage.py runserver
