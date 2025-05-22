@@ -10,7 +10,6 @@ Dieses Django-Projekt dient als flexible Plattform zur Erstellung und Verwaltung
     * [Voraussetzungen](#voraussetzungen)
     * [Setup](#setup)
     * [Erster Start](#erster-start)
-4.  [Projektstruktur](#projektstruktur)
 5.  [Apps des Projekts](#apps-des-projekts)
     * [`website_settings` App](#website_settings-app)
 6.  [Modelle](#modelle)
@@ -104,8 +103,6 @@ Befolge diese Schritte, um das Projekt lokal einzurichten und auszuführen.
     * **Admin-Bereich:** `http://127.0.0.1:8000/admin/` (Melde dich mit den Superuser-Zugangsdaten an.)
 
 **Hinweis:** Im Admin-Bereich kannst du unter "Website-Einstellungen" die globalen Einstellungen vornehmen und unter "Homepage Sections" sowie "Produkte" deine Inhalte und Produkte hinzufügen/bearbeiten.
-
-## 4. Projektstruktur
 
 ## 5. Apps des Projekts
 
