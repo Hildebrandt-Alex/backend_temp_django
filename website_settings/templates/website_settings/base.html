@@ -1,0 +1,194 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meine Website{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    {# Styles aus den Site Settings #}
+    {% if site_settings %}
+    <style>
+        body {
+            background-color: {{ site_settings.background_color }};
+            color: {{ site_settings.text_color }};
+            /* HINZUGEFÜGT: Für sanftes Scrollen */
+            scroll-behavior: smooth;
+        }
+
+        nav.navbar {
+            background-color: {{ site_settings.menu_color }};
+        }
+
+        nav.navbar .nav-link,
+        nav.navbar .navbar-brand {
+            color: {{ site_settings.menu_text_color }} !important;
+        }
+
+        footer {
+            color: {{ site_settings.text_color }};
+        }
+    </style>
+    {% endif %}
+
+    {# Allgemeine/Benutzerdefinierte Styles #}
+    <style>
+        /* HINZUGEFÜGT: Sorge dafür, dass der Header IMMER FIXED ist und über dem Inhalt liegt */
+        header.sticky-top {
+            position: fixed; /* Ganz wichtig: Header fest positionieren */
+            top: 0;          /* Am oberen Rand */
+            left: 0;         /* Am linken Rand */
+            width: 100%;     /* Volle Breite */
+            z-index: 1030;   /* Stellt sicher, dass er über anderem Inhalt liegt */
+            background-color: {{ site_settings.menu_color }}; /* Hintergrundfarbe, damit er nicht durchsichtig ist */
+            /* Optional: Wenn dein Header eine feste Höhe hat, kannst du sie hier explizit setzen: */
+            /* height: 70px; */
+        }
+
+        /* HINZUGEFÜGT: Füge padding-top zum main-Inhalt hinzu, um die Überlappung durch den festen Header zu verhindern */
+        main {
+            /* Dieser Wert sollte mindestens der Höhe deines Headers entsprechen,
+               plus ein kleiner Puffer, wenn der Inhalt nicht direkt unter dem Header beginnen soll. */
+            /* Beispiel: Wenn dein Header 70px hoch ist, setze hier 80px oder 90px. */
+            padding-top: 90px; /* <-- Diesen Wert ANPASSEN! */
+        }
+
+        .navbar-brand {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* CSS für die Klickfläche der Nav-Links und die Ausrichtung */
+        .navbar-nav .nav-item {
+            width: 100%; /* Stelle sicher, dass LI die volle Breite einnimmt */
+            /* display: flex; und align-items: center; können hier bleiben,
+               falls sie für die vertikale Ausrichtung der Elemente im LI wichtig sind. */
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            display: block; /* Macht den Link zum Block-Element */
+            width: 100%; /* Lässt den Link die volle Breite des LI einnehmen */
+            padding: 8px 15px; /* Feste Pixel-Werte für Padding */
+            /* Optional: Höhe anpassen, um die Klickfläche zu vergrößern */
+            /* height: 40px; */
+        }
+
+        /* NEUE REGEL: Stelle sicher, dass der Logout-Button im Hamburger-Menü und generell ausgerichtet ist */
+        .navbar-nav .nav-item form .btn.nav-link {
+            display: block;      /* Wie ein Block-Element */
+            width: 100%;         /* Füllt die verfügbare Breite aus */
+            text-align: left;    /* Text linksbündig ausrichten (wie normale Nav-Links) */
+            padding: 8px 15px;   /* Gleiches Padding wie die anderen Nav-Links */
+            margin: 0 !important; /* Wichtig: Überschreibe alle möglichen Margins von Bootstrap-Buttons */
+            box-shadow: none !important; /* Entfernt mögliche Button-Schatten */
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-brand {
+                position: static;
+                transform: none;
+                margin: auto;
+            }
+            /* Für mobile Ansicht (Hamburger Menü), wenn der Toggle aufgeklappt wird.
+               Das scroll-margin-top bleibt für die Section-Elemente zuständig. */
+        }
+
+        /* Die Regel für den Umbruch behalten */
+        .row > div.content-wrapper {
+            overflow-wrap: break-word !important;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body id="top">
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'homepage' %}">
+                {% if site_settings.logo %}
+                    <img src="{{ site_settings.logo.url }}" alt="Logo" class="img-fluid"
+                         style="
+                             max-height: {{ site_settings.logo_max_height|default:80 }}px;
+                             transform: translateX({{ site_settings.logo_horizontal_shift|default:0 }}px)
+                                        translateY({{ site_settings.logo_vertical_shift|default:0 }}px);
+                             ">
+                {% else %}
+                    Deine Marke
+                {% endif %}
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% for menu_item in menu_items %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#{{ menu_item.slug }}">{{ menu_item.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:profile' %}">Profil</a>
+                        </li>
+                        {# ANPASSUNG HIER: d-flex align-items-center auf dem nav-item und form mb-0 #}
+                        <li class="nav-item d-flex align-items-center">
+                            <form method="post" action="{% url 'accounts:logout' %}" class="mb-0">
+                                {% csrf_token %}
+                                {# Button bekommt KEINE p-0 oder style="line-height: 1;" mehr #}
+                                <button type="submit" class="nav-link btn btn-link">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="container mt-5">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="py-3 mt-5 text-center">
+    <div class="container">
+        <p>&copy; {{ year }} Deine Firma</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbarCollapse = document.getElementById('navbarNav'); // Das Element, das das Menü enthält
+        const navLinks = navbarCollapse.querySelectorAll('.nav-link'); // Alle Navigationslinks
+        // Initialisiere die Bootstrap Collapse Instanz, aber nicht umschalten
+        const bsCollapse = new bootstrap.Collapse(navbarCollapse, { toggle: false });
+
+        // Füge einen Event Listener für jeden Nav-Link hinzu
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Nur schließen, wenn das Menü aktuell aufgeklappt ist (mobil)
+                // Dies wird besonders wichtig, wenn das Menü tatsächlich als Collapse fungiert
+                if (navbarCollapse.classList.contains('show')) {
+                    bsCollapse.hide(); // Schließe das Menü
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+</body>
+</html>

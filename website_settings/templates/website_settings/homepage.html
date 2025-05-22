@@ -1,0 +1,149 @@
+{% extends 'website_settings/base.html' %}
+
+{% block title %}Deine Homepage{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Mehr Platz zwischen den Sections */
+    section {
+        margin-bottom: 70px; /* Dieser Wert steuert den Abstand ZWISCHEN den Sektionen */
+        scroll-margin-top: 110px; /* <-- Diesen Wert ANPASSEN! */
+    }
+</style>
+
+    {% for item in menu_items %}
+        {% if item.pagesection %}
+            <section id="{{ item.slug }}" class="py-5 {{ item.pagesection.border }} {% if item.pagesection.rounded %}rounded{% endif %} {% if item.pagesection.shadow %}shadow{% endif %} {{ item.pagesection.padding }} {{ item.pagesection.margin }}"
+                     style="{% if item.pagesection.background_color %}background-color: {{ item.pagesection.background_color }};{% endif %}">
+                <div class="container" style="color: {% if item.pagesection.section_text_color %}{{ item.pagesection.section_text_color }}{% else %}{{ site_settings.text_color }}{% endif %};
+                            {% if item.pagesection.font_weight %}{{ item.pagesection.font_weight }};{% endif %}
+                            {% if item.pagesection.font_italic %}font-style: italic;{% endif %}
+                            {% if item.pagesection.text_align %}{{ item.pagesection.text_align }};{% endif %}">
+                    {% if item.pagesection.layout == 'paper-article' %}
+                        <div class="paper-article">
+                            {% if item.pagesection.title %}
+                                <h1 class="article-title">{{ item.pagesection.title }}</h1>
+                            {% endif %}
+                            {% if item.pagesection.author %}
+                                <p class="article-author">Von {{ item.pagesection.author }}
+                                    {% if item.pagesection.publication_date %} | {{ item.pagesection.publication_date|date:"d.m.Y" }}{% endif %}
+                                </p>
+                            {% endif %}
+                            <div class="article-content">
+                                {# first_paragraph entfernt. Der Inhalt kommt direkt aus 'content' #}
+                                {{ item.pagesection.content|safe }}
+                                {% if item.pagesection.image %}
+                                    <img src="{{ item.pagesection.image.url }}" alt="{{ item.pagesection.title }}" class="img-fluid mt-3">
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% elif item.pagesection.layout == 'one-column' %}
+                        <div class="row">
+                            <div class="col-md-12 content-wrapper">
+                                <h2 class="mb-3">{{ item.pagesection.title }}</h2>
+                                {% if item.pagesection.image %}
+                                    <img src="{{ item.pagesection.image.url }}" alt="{{ item.pagesection.title }}" class="img-fluid mb-3">
+                                {% endif %}
+                                {{ item.pagesection.content|safe }}
+                                {% if item.pagesection.author or item.pagesection.publication_date %}
+                                    <p class="mt-3">
+                                        {% if item.pagesection.author %}Autor: {{ item.pagesection.author }}{% endif %}
+                                        {% if item.pagesection.publication_date %} | Datum: {{ item.pagesection.publication_date|date:"d.m.Y" }}{% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% elif item.pagesection.layout == 'two-columns-left' %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% if item.pagesection.image %}
+                                    <img src="{{ item.pagesection.image.url }}" alt="{{ item.pagesection.title }}" class="img-fluid mb-3">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 content-wrapper">
+                                <h2 class="mb-3">{{ item.pagesection.title }}</h2>
+                                {{ item.pagesection.content|safe }}
+                                {% if item.pagesection.author or item.pagesection.publication_date %}
+                                    <p class="mt-3">
+                                        {% if item.pagesection.author %}Autor: {{ item.pagesection.author }}{% endif %}
+                                        {% if item.pagesection.publication_date %} | Datum: {{ item.pagesection.publication_date|date:"d.m.Y" }}{% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% elif item.pagesection.layout == 'two-columns-right' %}
+                        <div class="row">
+                            <div class="col-md-6 content-wrapper">
+                                <h2 class="mb-3">{{ item.pagesection.title }}</h2>
+                                {{ item.pagesection.content|safe }}
+                                {% if item.pagesection.author or item.pagesection.publication_date %}
+                                    <p class="mt-3">
+                                        {% if item.pagesection.author %}Autor: {{ item.pagesection.author }}{% endif %}
+                                        {% if item.pagesection.publication_date %} | Datum: {{ item.pagesection.publication_date|date:"d.m.Y" }}{% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {% if item.pagesection.image %}
+                                    <img src="{{ item.pagesection.image.url }}" alt="{{ item.pagesection.title }}" class="img-fluid mb-3">
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            <div class="col-md-12 content-wrapper">
+                                <h2 class="mb-3">{{ item.pagesection.title }}</h2>
+                                {% if item.pagesection.image %}
+                                    <img src="{{ item.pagesection.image.url }}" alt="{{ item.pagesection.title }}" class="img-fluid mb-3">
+                                {% endif %}
+                                {{ item.pagesection.content|safe }}
+                                {% if item.pagesection.author or item.pagesection.publication_date %}
+                                    <p class="mt-3">
+                                        {% if item.pagesection.author %}Autor: {{ item.pagesection.author }}{% endif %}
+                                        {% if item.pagesection.publication_date %} | Datum: {{ item.pagesection.publication_date|date:"d.m.Y" }}{% endif %}
+                                    </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+    {% empty %}
+        <p>No content available yet.</p>
+    {% endfor %}
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .paper-article {
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 2rem 0;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .article-author {
+            font-size: 0.9rem;
+            color: #777;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* NEUE REGEL: Stilisiert den ersten P-Tag innerhalb von .article-content */
+        .article-content p:first-of-type {
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .article-content p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+    </style>
+{% endblock %}

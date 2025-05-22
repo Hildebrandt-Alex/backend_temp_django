@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
+import os  # Füge diese Zeile hinzu
+import dj_database_url
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,25 +24,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o3lef4e0@wk@l6zsjn9&@!c1=a38+h)2sr!g0g@6x27#-lvsa_'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
+# Sicherheit
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1', cast=Csv())
 
-ALLOWED_HOSTS = []
-
+# Datenbank (optional, falls du später PostgreSQL nutzt)
+# DATABASES = {
+#     'default': dj_database_url.config(default=config('DATABASE_URL'))
+# }
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',  # fürs admin backedn layout
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+    'accounts',
+    'website_settings',
+    'colorfield', # color picker für die admin seite
+    'tinymce', # rich text editor für die admin seite
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,13 +67,15 @@ ROOT_URLCONF = 'backend_temp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'website_settings','templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'website_settings.context_processors.site_settings',  # Dieser Eintrag ist entscheidend
+
             ],
         },
     },
@@ -114,9 +129,59 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Login Handling
+
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'homepage'  # oder 'accounts:profile', je nach Wunsch
+LOGOUT_REDIRECT_URL = 'homepage'
+
+# Jazzmin settings (optional, für Admin-UI) 
+# Jazzmin settings (optional, für Admin-UI)
+JAZZMIN_SETTINGS = {
+    "site_title": "Mein Admin",
+    "site_header": "Mein Admin Dashboard",
+    "site_brand": "Meine Firma",
+    "welcome_sign": "Willkommen im Adminbereich",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    "side_menu": [
+        {"app": "website_settings", "label": "Website-Einstellungen", "icon": "fas fa-cog", "models": [
+            "website_settings.sitesettingscolors",
+            "website_settings.sitesettingslogo",
+        ]}
+    ],
+}
+
+assert isinstance(JAZZMIN_SETTINGS, dict), "JAZZMIN_SETTINGS must be a dict!"
+
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'silver',
+    'plugins': 'advlist,autolink,lists,link,image,charmap,preview,anchor,'
+               'searchreplace,visualblocks,code,fullscreen,insertdatetime,media,table,help,wordcount',
+    'toolbar': 'undo redo | formatselect | '
+               'bold italic backcolor | alignleft aligncenter '
+               'alignright alignjustify | bullist numlist outdent indent | '
+               'removeformat | help',
+    'menubar': True,
+    'content_css': 'default',  # Oder verwende Bootstrap-CSS, falls gewünscht
+    'height': 300,
+}
+
+TINYMCE_CONFIG = {
+    'default': TINYMCE_DEFAULT_CONFIG,
+}
