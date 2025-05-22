@@ -1,23 +1,192 @@
+# Mein Personalisiertes Django Website-Projekt
+
+Dieses Django-Projekt dient als flexible Plattform zur Erstellung und Verwaltung einer personalisierten Website. Es bietet umfangreiche Anpassungsmöglichkeiten für Farben, Layouts, Menüführung und Inhalte direkt über das Django-Admin-Interface.
+
+## Inhaltsverzeichnis
+
+1.  [Über das Projekt](#über-das-projekt)
+2.  [Features](#features)
+3.  [Installation](#installation)
+    * [Voraussetzungen](#voraussetzungen)
+    * [Setup](#setup)
+    * [Erster Start](#erster-start)
+4.  [Projektstruktur](#projektstruktur)
+5.  [Apps des Projekts](#apps-des-projekts)
+    * [`website_settings` App](#website_settings-app)
+6.  [Modelle](#modelle)
+7.  [Views](#views)
+8.  [URLs](#urls)
+9.  [Verwendete Libraries & Tools](#verwendete-libraries--tools)
+10. [Einstellungen (`settings.py`)](#einstellungen-settingspy)
+11. [Deployment](#deployment)
+12. [Beitragen](#beitragen)
+13. [Lizenz](#lizenz)
+
 ---
-title: "Django Backend Template"
-output: github_document
----
 
-# backend_template
+## 1. Über das Projekt
 
-Ein leichtgewichtiges Django-Backend-Template mit REST-API-Struktur, vorbereitet für Deployment auf Servern (z. B. Ubuntu).
+Dieses Django-Projekt ist ein Content-Management-System (CMS) in leichtgewichtiger Form, das speziell für eine Homepage mit dynamischen Sektionen und einer Produktübersicht entwickelt wurde. Es ermöglicht es Administratoren, die visuellen Einstellungen, Menüpunkte und den Inhalt verschiedener Sektionen sowie Produktdetails einfach über das Django-Admin-Backend zu konfigurieren, ohne Code ändern zu müssen.
 
-## Features
+## 2. Features
 
-- Django (aktuelle Version)
-- Virtual Environment (`venv`)
-- Klar strukturierter Startpunkt für REST-Projekte
+* **Dynamische Homepage-Sektionen:** Erstelle und verwalte verschiedene Inhaltssektionen mit unterschiedlichen Layouts (einspaltig, zweispaltig mit Bild links/rechts, Paper-Artikel).
+* **Anpassbare Website-Einstellungen:** Konfiguriere globale Farben (Menü, Hintergrund, Text) und Logo-Einstellungen (Bild, Größe, Position).
+* **Flexibles Menümanagement:** Definiere Menüpunkte, deren Reihenfolge und Verknüpfung zu den Homepage-Sektionen.
+* **Rich-Text-Bearbeitung:** Nutze TinyMCE für die einfache und formatierte Inhaltseingabe in den Sektionen.
+* **Produktdarstellung:** Verwalte Produkte mit Varianten (Farben, Größen, Bilder) und zeige sie in einer übersichtlichen Kachelansicht an.
+* **Responsives Design:** Standardmäßig für eine gute Darstellung auf verschiedenen Geräten optimiert (dank Bootstrap).
 
-## Nutzung
+## 3. Installation
 
-```bash
-# Umgebung aktivieren
-source venv/Scripts/activate
+Befolge diese Schritte, um das Projekt lokal einzurichten und auszuführen.
 
-# Server starten
-python manage.py runserver
+### Voraussetzungen
+
+* Python 3.8+
+* pip (Python-Paketmanager)
+* Git (Versionskontrollsystem)
+
+### Setup
+
+1.  **Repository klonen:**
+    ```bash
+    git clone [https://github.com/DEIN_USERNAME/DEIN_REPOSITORY_NAME.git](https://github.com/DEIN_USERNAME/DEIN_REPOSITORY_NAME.git)
+    cd DEIN_REPOSITORY_NAME
+    ```
+    Ersetze `DEIN_USERNAME` und `DEIN_REPOSITORY_NAME` durch die entsprechenden Werte deines GitHub-Repositorys.
+
+2.  **Virtuelle Umgebung erstellen und aktivieren:**
+    Es wird dringend empfohlen, eine virtuelle Umgebung zu verwenden, um die Projektabhängigkeiten zu isolieren.
+    ```bash
+    python3 -m venv venv
+    # Auf Linux / macOS:
+    source venv/bin/activate
+    # Auf Windows (PowerShell):
+    .\venv\Scripts\activate
+    # Auf Windows (CMD):
+    venv\Scripts\activate.bat
+    ```
+
+3.  **Abhängigkeiten installieren:**
+    Installiere alle benötigten Python-Pakete aus der `requirements.txt`-Datei:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Datenbank migrieren:**
+    Wende die Django-Datenbankmigrationen an, um die Datenbanktabellen zu erstellen:
+    ```bash
+    python manage.py migrate
+    ```
+
+5.  **Superuser erstellen (für den Admin-Bereich):**
+    ```bash
+    python manage.py createsuperuser
+    ```
+    Folge den Anweisungen, um Benutzername, E-Mail und Passwort festzulegen.
+
+6.  **Statische Dateien sammeln:**
+    Dies kopiert alle statischen Dateien (CSS, JS, Bilder) der Django-Apps in ein einziges Verzeichnis, das vom Webserver bereitgestellt werden kann.
+    ```bash
+    python manage.py collectstatic
+    ```
+    Bestätige mit `yes`.
+
+### Erster Start
+
+1.  **Entwicklungsserver starten:**
+    ```bash
+    python manage.py runserver
+    ```
+2.  Öffne deinen Webbrowser und navigiere zu:
+    * **Homepage:** `http://127.0.0.1:8000/`
+    * **Admin-Bereich:** `http://127.0.0.1:8000/admin/` (Melde dich mit den Superuser-Zugangsdaten an.)
+
+**Hinweis:** Im Admin-Bereich kannst du unter "Website-Einstellungen" die globalen Einstellungen vornehmen und unter "Homepage Sections" sowie "Produkte" deine Inhalte und Produkte hinzufügen/bearbeiten.
+
+## 4. Projektstruktur
+
+## 5. Apps des Projekts
+
+### `website_settings` App
+
+Dies ist die Kern-App des Projekts, die alle Modelle und Logik für die Website-Konfiguration und Inhalte enthält.
+
+## 6. Modelle
+
+Die Datenbankstruktur des Projekts wird durch folgende Modelle definiert (in `website_settings/models.py`):
+
+* **`SiteSettings`**: Enthält globale Website-Einstellungen wie Menü-, Hintergrund- und Textfarben sowie Logo-Details (Bild, Höhe, Versatz). Wird als Singleton behandelt (nur ein Objekt erlaubt).
+* **`MenuItem`**: Definiert Einträge für das Hauptmenü der Website. Jedes Menüelement kann mit einer `PageSection` verknüpft sein.
+    * Felder: `title`, `slug`, `order`, `is_active`.
+* **`PageSection`**: Repräsentiert einen Inhaltsbereich auf der Homepage.
+    * Felder: `menu_item` (OneToOne-Beziehung zu `MenuItem`), `title`, `content` (HTMLField für Rich-Text), `image`, `order`, `is_active`, `slug`, `author`, `publication_date`.
+    * `layout`: Definiert das visuelle Layout der Sektion (`one-column`, `two-columns-left`, `two-columns-right`, `paper-article`).
+    * Darstellungsoptionen: `section_text_color`, `background_color`, `border`, `rounded`, `shadow`, `font_weight`, `font_italic`, `text_align`, `padding`, `margin`.
+* **`Product`**: Repräsentiert ein allgemeines Produkt (z.B. "Premium T-Shirt").
+    * Felder: `name`, `slug`, `description`, `price`, `minimum_order_quantity`, `main_image`, `is_active`.
+* **`ProductVariant`**: Definiert spezifische Varianten eines Produkts (z.B. "Premium T-Shirt - Schwarz - M").
+    * Felder: `product` (ForeignKey zu `Product`), `color_name`, `color_code`, `image`, `sizes_available` (als String), `sku`, `is_active`.
+
+## 7. Views
+
+Die Haupt-Views befinden sich in `website_settings/views.py`:
+
+* `homepage_view`: Rendert die Hauptseite, indem alle aktiven Menüpunkte und ihre verknüpften Sektionen abgerufen werden. Globale Website-Einstellungen werden ebenfalls übergeben.
+* `product_list_view`: Ruft alle aktiven Produkte und ihre Varianten ab und rendert eine Seite mit der Produktübersicht.
+
+## 8. URLs
+
+* **Globale URLs** (`myproject/urls.py`):
+    * Leitet Anfragen für den Admin-Bereich und die `website_settings`-App weiter.
+    * Stellt Mediendateien im Entwicklungsmodus bereit.
+* **App-spezifische URLs** (`website_settings/urls.py`):
+    * Definiert die URL für die Homepage (`/`).
+    * Definiert die URL für die Produktübersicht (`/products/`).
+
+## 9. Verwendete Libraries & Tools
+
+* **Django:** Das Web-Framework.
+* **Pillow:** Bildverarbeitungsbibliothek (für `ImageField`).
+* **django-tinymce:** Integriert den TinyMCE WYSIWYG-Editor für Rich-Text-Felder im Admin.
+* **django-colorfield:** Bietet ein benutzerfreundliches Farbauswahlfeld im Django-Admin.
+* **Bootstrap 5:** CSS-Framework für responsives Design und Komponenten (eingebunden über CDN im `base.html`).
+
+## 10. Einstellungen (`settings.py`)
+
+Die Hauptkonfigurationsdatei `myproject/settings.py` enthält die globalen Einstellungen des Django-Projekts.
+
+**Wichtige Punkte:**
+
+* **`SECRET_KEY`**: Sollte für die Produktion unbedingt über Umgebungsvariablen (`os.environ.get`) gesetzt werden und niemals direkt im Code stehen.
+* **`DEBUG`**: Im Produktionsmodus muss `DEBUG = False` gesetzt werden.
+* **`ALLOWED_HOSTS`**: Muss im Produktionsmodus die Domains auflisten, auf denen die Website erreichbar ist.
+* **`STATIC_URL`**, `STATIC_ROOT`, `MEDIA_URL`, `MEDIA_ROOT`: Konfigurationen für die Handhabung von statischen und Mediendateien.
+* **`INSTALLED_APPS`**: Liste der aktivierten Django-Apps, einschließlich `tinymce`, `colorfield`, und `website_settings`.
+
+**Sicherheitshinweis:** Für den Produktionseinsatz wird dringend empfohlen, sensible Daten (z.B. `SECRET_KEY`, Datenbank-Zugangsdaten) nicht direkt in `settings.py` zu speichern, sondern Umgebungsvariablen oder ein Tool wie `python-dotenv` zu verwenden.
+
+## 11. Deployment
+
+Um das Projekt für den Produktionsbetrieb vorzubereiten:
+
+1.  **Setze Umgebungsvariablen:** Stelle sicher, dass `DJANGO_SECRET_KEY` und `DJANGO_DEBUG=False` auf deinem Server gesetzt sind.
+2.  **Webserver konfigurieren:** Verwende einen Webserver wie Nginx oder Apache, um Anfragen an deine Django-Anwendung weiterzuleiten (mittels eines WSGI-Servers wie Gunicorn oder uWSGI).
+3.  **Statische Dateien bereitstellen:** Konfiguriere deinen Webserver, um die gesammelten statischen Dateien (`STATIC_ROOT`) direkt zu servieren.
+4.  **Mediendateien verwalten:** Für hochgeladene Mediendateien (`MEDIA_ROOT`) wird in der Produktion oft ein Cloud-Speicher (z.B. AWS S3) empfohlen.
+5.  **HTTPS aktivieren:** Verwende SSL-Zertifikate (z.B. Let's Encrypt) für eine sichere Verbindung.
+
+## 12. Beitragen
+
+Wenn du zu diesem Projekt beitragen möchtest:
+
+1.  Forke das Repository.
+2.  Erstelle einen neuen Branch für deine Features (`git checkout -b feature/MeinNeuesFeature`).
+3.  Commite deine Änderungen (`git commit -m 'Add new feature'`).
+4.  Pushe deinen Branch (`git push origin feature/MeinNeuesFeature`).
+5.  Öffne einen Pull Request.
+
+## 13. Lizenz
+
+Dieses Projekt steht unter der MIT-Lizenz. Weitere Details findest du in der `LICENSE`-Datei (falls vorhanden).
